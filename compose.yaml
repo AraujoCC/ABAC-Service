@@ -12,24 +12,19 @@ services:
     volumes:
       - abac-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U abac -d abacdb"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d abacdb"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   opa:
-    image: openpolicyagent/opa:latest-rootless
+    image: openpolicyagent/opa:latest
     container_name: abac-opa
-    command: run --server --log-level=info
+    command: run --server --log-level=info --addr=0.0.0.0:8181
     ports:
       - "8181:8181"
     volumes:
       - ./opa/policies:/policies
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8181/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   abac-postgres-data:
