@@ -1,0 +1,35 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: abac-postgres
+    environment:
+      POSTGRES_DB: abacdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - abac-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abac -d abacdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  opa:
+    image: openpolicyagent/opa:latest-rootless
+    container_name: abac-opa
+    command: run --server --log-level=info
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./opa/policies:/policies
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8181/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  abac-postgres-data:
