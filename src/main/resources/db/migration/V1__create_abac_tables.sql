@@ -45,14 +45,14 @@ CREATE TABLE policies
 
 CREATE TABLE policy_target_actions
 (
-    policy_id UUID REFERENCES policies (id) ON DELETE CASCADE,
-    action    VARCHAR(50) NOT NULL
+    policy_id      UUID REFERENCES policies (id) ON DELETE CASCADE,
+    target_actions VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE policy_target_resource_types
 (
-    policy_id     UUID REFERENCES policies (id) ON DELETE CASCADE,
-    resource_type VARCHAR(50) NOT NULL
+    policy_id             UUID REFERENCES policies (id) ON DELETE CASCADE,
+    target_resource_types VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE policy_decisions

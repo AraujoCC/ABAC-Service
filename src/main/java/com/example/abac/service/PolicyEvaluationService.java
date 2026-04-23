@@ -1,5 +1,20 @@
 package com.example.abac.service;
 
+import com.example.abac.domain.PolicyDecision;
+import com.example.abac.domain.enums.Effect;
+import com.example.abac.dto.AuthorizationRequest;
+import com.example.abac.dto.AuthorizationResponse;
+import com.example.abac.infrastructure.opa.OpaClient;
+import com.example.abac.infrastructure.opa.OpaDecisionResponse;
+import com.example.abac.pip.AttributeCollectorService;
+import com.example.abac.repository.PolicyDecisionRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -12,13 +27,10 @@ public class PolicyEvaluationService {
     public AuthorizationResponse evaluate(AuthorizationRequest rawRequest) {
         String requestId = UUID.randomUUID().toString();
 
-        // 1. PIP: enriquecer atributos faltantes
         AuthorizationRequest enriched = pip.enrich(rawRequest);
 
-        // 2. PDP: delegar decisão ao OPA
         OpaDecisionResponse opaResponse = opaClient.evaluate(enriched);
 
-        // 3. Persistir decisão para auditoria
         Effect decision = opaResponse.allow() ? Effect.PERMIT : Effect.DENY;
         persistDecision(enriched, decision, opaResponse.reason(), requestId);
 
